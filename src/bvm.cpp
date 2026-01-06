@@ -4,7 +4,7 @@ VM::VM(unsigned char* bytecode){
             this->program = bytecode;
             this->inst_ptr = bytecode;
             this->st_ptr = 0;
-            this->rsp = 0;
+            this->rst_ptr = 0;
             // init memory to zero
             memset(this->memory, 0, sizeof(this->memory));
 }
@@ -17,12 +17,12 @@ void VM::run(){
         
         // 2. DECODE: decide what to do
         switch(opcode){
-            case 0xFF: // HALT
+            case HALT: // HALT
             {
                 running = false;
                 break;
             }
-            case 0x01: //PUSH
+            case PUSH: //PUSH
             {    // get addr of the byte after opcode
                 // (int *):  cast it: treat addr as ptr to int
                 // * : dereference: read int val
@@ -37,7 +37,13 @@ void VM::run(){
                 this->inst_ptr += 4;
                 break;
             }
-            case 0x10: // ADD
+            case POP: { // POP
+                if (this->st_ptr > 0) {
+                    this->st_ptr--;
+                }
+                break;
+            }
+            case ADD: // ADD
             {
                 this->st_ptr--;
                 int b = this->stack[this->st_ptr];
@@ -48,7 +54,7 @@ void VM::run(){
                 this->st_ptr++;
                 break;
             }
-            case 0x11: // SUBTRACT
+            case SUB: // SUBTRACT
             {
                 this->st_ptr--;
                 int b = this->stack[this->st_ptr];
@@ -59,7 +65,7 @@ void VM::run(){
                 this->st_ptr++;
                 break;
             }
-            case 0x12: // MUL
+            case MUL: // MUL
             {
                 this->st_ptr--;
                 int b = this->stack[this->st_ptr];
@@ -70,7 +76,7 @@ void VM::run(){
                 this->st_ptr++;
                 break;
             }
-            case 0x13: // DIV
+            case DIV: // DIV
             {
                 this->st_ptr--;
                 int b = this->stack[this->st_ptr];
@@ -81,7 +87,21 @@ void VM::run(){
                 this->st_ptr++;
                 break;
             }
-            case 0x30: //  STORE IDX
+            case CMP: { // CMP (eqal check)
+                this->st_ptr--;
+                int b = this->stack[this->st_ptr];
+                this->st_ptr--;
+                int a = this->stack[this->st_ptr];
+                
+                // res: 1 if Equal, 0 if Not Equal
+                int res = (a == b) ? 1 : 0;
+                
+                this->stack[this->st_ptr] = res;
+                this->st_ptr++;
+                break;
+            }
+
+            case STORE: //  STORE IDX
             {
                 // pop val from stack
                 this->st_ptr--;
@@ -93,7 +113,7 @@ void VM::run(){
                 this->inst_ptr += 4;
                 break;
             }
-            case 0x31: // LOAD IDX
+            case LOAD: // LOAD IDX
             {
                 // get idx
                 int idx = *(int *)(this->inst_ptr + 1);
@@ -109,7 +129,7 @@ void VM::run(){
                 break;
             }
             
-            case 0x20: // JUMP addr
+            case JMP: // JUMP addr
             {
                 // get idx
                 int target = *(int *)(this->inst_ptr + 1);
@@ -119,7 +139,7 @@ void VM::run(){
                 //jump to next instr
                 continue;
             }
-            case 0x21: // JZ addr
+            case JZ: // JZ addr
             {
                 // pop val
                 this->st_ptr--;
@@ -138,7 +158,7 @@ void VM::run(){
                     break;
                 }
             }
-            case 0x22: // JNZ addr
+            case JNZ: // JNZ addr
             {
                 // pop val
                 this->st_ptr--;
@@ -157,7 +177,7 @@ void VM::run(){
                     break;
                 }
             }
-            case 0x03:
+            case DUP:
             {
                 int top = this->stack[this->st_ptr - 1];
                 this->stack[this->st_ptr] = top;
@@ -165,14 +185,47 @@ void VM::run(){
                 break;
 
             }
+            case CALL: // CALL addr
+            { 
+                // get target jump addr
+                int target = *(int *)(this->inst_ptr + 1);
+
+                // calc return addr (curr location + 5 bytes)
+                // store this as an OFFSET from start of prog
+                int return_addr = (int)(this->inst_ptr - this->program) + 5;
+
+                // push to RETURN STACK
+                this->ret_stack[this->rst_ptr] = return_addr;
+                this->rst_ptr++;
+
+                // jump
+                this->inst_ptr = this->program + target;
+                continue;
+            }
+
+            case RET: // RET
+            { 
+            // check if we have anywhere to return to
+            if (this->rst_ptr == 0) {
+                printf("Error: Stack underflow on RET\n");
+                running = false;
+                break;
+            }
+
+            // pop from RETURN STACK
+            this->rst_ptr--;
+            int ret_addr = this->ret_stack[this->rst_ptr];
+
+            // jump back
+            this->inst_ptr = this->program + ret_addr;
+            continue;
+            }
             default:
-                printf("Unknown Opcode");
+                printf("Unknown Opcode %x\n", opcode);
                 running = false;
                 break;
 
         }
-
-
 
         // move to next instruction (if not stopping)
         if(running){
