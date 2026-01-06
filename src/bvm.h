@@ -59,7 +59,7 @@ class VM {
 
 
         int ret_stack[RET_STACK_SIZE];
-        int rsp;
+        int rst_ptr;
 
         VM(unsigned char* bytecode);
 
