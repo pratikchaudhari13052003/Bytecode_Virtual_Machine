@@ -1,10 +1,6 @@
 #include "bvm.h"
 
-//remove
-#include <bits/stdc++.h>
 
-//remove
-using namespace std;
 
 VM::VM(unsigned char* bytecode){
             this->program = bytecode;
@@ -227,7 +223,6 @@ void VM::run(){
             continue;
             }
             default:
-                cout<<"this"<<this->inst_ptr<<endl;
                 printf("Unknown Opcode %x\n", opcode);
                 running = false;
                 break;
