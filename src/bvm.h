@@ -60,6 +60,10 @@ class VM {
 
         int ret_stack[RET_STACK_SIZE];
         int rsp;
+
+        VM(unsigned char* bytecode);
+
+        void run();
         
 };
 
