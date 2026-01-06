@@ -1,5 +1,11 @@
 #include "bvm.h"
 
+//remove
+#include <bits/stdc++.h>
+
+//remove
+using namespace std;
+
 VM::VM(unsigned char* bytecode){
             this->program = bytecode;
             this->inst_ptr = bytecode;
@@ -8,13 +14,13 @@ VM::VM(unsigned char* bytecode){
             // init memory to zero
             memset(this->memory, 0, sizeof(this->memory));
 }
-
+ 
 void VM::run(){
     this->running = true;
     while(running){
         // 1. FETCH : get curr instruction
         unsigned char opcode = *this->inst_ptr;
-        
+     
         // 2. DECODE: decide what to do
         switch(opcode){
             case HALT: // HALT
@@ -26,7 +32,7 @@ void VM::run(){
             {    // get addr of the byte after opcode
                 // (int *):  cast it: treat addr as ptr to int
                 // * : dereference: read int val
-                int val = *(int *)(*this->inst_ptr + 1);
+                int val = *(int *)(this->inst_ptr + 1);
                 // stack logic
                 // add val to stack
                 // update stack ptr
@@ -93,8 +99,8 @@ void VM::run(){
                 this->st_ptr--;
                 int a = this->stack[this->st_ptr];
                 
-                // res: 1 if Equal, 0 if Not Equal
-                int res = (a == b) ? 1 : 0;
+                
+               int res = (a < b) ? 1 : 0;
                 
                 this->stack[this->st_ptr] = res;
                 this->st_ptr++;
@@ -221,6 +227,7 @@ void VM::run(){
             continue;
             }
             default:
+                cout<<"this"<<this->inst_ptr<<endl;
                 printf("Unknown Opcode %x\n", opcode);
                 running = false;
                 break;

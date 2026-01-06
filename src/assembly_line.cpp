@@ -1,16 +1,14 @@
 #include <cstdint>
 #include <iostream>
-#include "bvm_assemble_line.cpp"
 
 
 #define CODE_SIZE  1024 
 #define LINE_SIZE 128
 
+int assemble_line(char *line, uint8_t *code, int pc);
 
 
 int main(int argc, char *argv[]) {
-    uint8_t *code;
-    int pc=0;
     
     if (argc != 3) {
         printf("Usage: %s input.asm output.bin\n", argv[0]);

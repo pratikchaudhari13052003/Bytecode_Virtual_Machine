@@ -1,3 +1,7 @@
-PUSH 5
+; Countdown Loop
+; Counts down from 5 to 0
 
-HALT 
+PUSH 2  
+
+; --- End ---
+HALT

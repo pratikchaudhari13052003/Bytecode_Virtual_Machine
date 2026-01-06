@@ -1,51 +1,28 @@
-# --- Compiler Settings ---
-CXX      = g++
-# -Isrc tells the compiler to look in the 'src' folder for header files like bvm.h
+# Compiler settings
+CXX = g++
+# -Isrc tells the compiler to look for header files (bvm.h) in the src folder
 CXXFLAGS = -Wall -g -Isrc
 
-# --- Directories ---
-SRC_DIR   = src
-BUILD_DIR = build
-BIN_DIR   = bin
+# Define the Source Directory
+SRC = src
 
-# --- File Lists ---
-# We define the specific filenames (without extension) for each program
-ASM_NAMES = assembly_line bvm_emit bvm_assemble_line
-VM_NAMES  = bvm bvm_run bvm_stack_operation bvm_initialise
+# Targets
+all: vm assembler
 
-# Convert names to full paths: src/filename.cpp
-# AND convert them to object paths: build/filename.o
-ASM_OBJS = $(patsubst %, $(BUILD_DIR)/%.o, $(ASM_NAMES))
-VM_OBJS  = $(patsubst %, $(BUILD_DIR)/%.o, $(VM_NAMES))
+# 1. Compile VM
+# We tell make to look for files inside $(SRC)/...
+vm: $(SRC)/bvm_main.cpp $(SRC)/bvm.cpp
+	$(CXX) $(CXXFLAGS) -o vm $(SRC)/bvm_main.cpp $(SRC)/bvm.cpp
 
-# --- Main Targets ---
-all: directories assembler vm
+# 2. Compile Assembler
+assembler: $(SRC)/assembly_line.cpp $(SRC)/bvm_assemble_line.cpp
+	$(CXX) $(CXXFLAGS) -o assembler $(SRC)/assembly_line.cpp $(SRC)/bvm_assemble_line.cpp
 
-# Ensure the output directories exist before compiling
-directories:
-	@mkdir -p $(BUILD_DIR)
-	@mkdir -p $(BIN_DIR)
-
-# --- 1. Assembler Build ---
-assembler: $(ASM_OBJS)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/assembler $(ASM_OBJS)
-
-# --- 2. VM Build ---
-vm: $(VM_OBJS)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/vm $(VM_OBJS)
-
-# --- 3. Generic Compilation Rule ---
-# This says: "To make build/X.o, look for src/X.cpp"
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/bvm.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-# --- 4. Test / Run ---
 run: all
 	
 	./$(BIN_DIR)/assembler tests/area.asm area.bin
 	
 	./$(BIN_DIR)/vm area.bin
 
-# --- 5. Clean ---
 clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR) *.bin
+	rm -f vm assembler
