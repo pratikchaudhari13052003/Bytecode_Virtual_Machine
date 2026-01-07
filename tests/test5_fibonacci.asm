@@ -1,41 +1,38 @@
 ; Test 5: Fibonacci sequence (iterative)
-; Calculate 10th Fibonacci number
-; Expected result: 55
+; Calculate 10th Fibonacci number -> 55
 
-; fib(0) = 0, fib(1) = 1
 ; Initialize: prev = 0, curr = 1, counter = 2
-PUSH 0
-STORE 0     ; memory[0] = prev = 0
+PUSH 0      ; Bytes 0-4
+STORE 0     ; Bytes 5-9
 
-PUSH 1
-STORE 1     ; memory[1] = curr = 1
+PUSH 1      ; Bytes 10-14
+STORE 1     ; Bytes 15-19
 
-PUSH 2
-STORE 2     ; memory[2] = counter = 2
+PUSH 2      ; Bytes 20-24
+STORE 2     ; Bytes 25-29
 
-; Loop start at byte 19
-; Calculate next = prev + curr
-LOAD 0      ; prev
-LOAD 1      ; curr
-ADD         ; next = prev + curr
+; Loop START (Byte 30)
+LOAD 0      ; Bytes 30-34 (prev)
+LOAD 1      ; Bytes 35-39 (curr)
+ADD         ; Byte 40     (next)
 
-; Shift values: prev = curr, curr = next
-LOAD 1
-STORE 0     ; prev = curr
-STORE 1     ; curr = next
+; Shift values
+LOAD 1      ; Bytes 41-45
+STORE 0     ; Bytes 46-50 (prev = curr)
+STORE 1     ; Bytes 51-55 (curr = next)
 
 ; Increment counter
-LOAD 2
-PUSH 1
-ADD
-STORE 2
+LOAD 2      ; Bytes 56-60
+PUSH 1      ; Bytes 61-65
+ADD         ; Byte 66
+STORE 2     ; Bytes 67-71
 
 ; Check if counter < 10
-LOAD 2
-PUSH 10
-CMP         ; Returns 1 if counter < 10
-JNZ 19      ; Continue loop if counter < 10
+LOAD 2      ; Bytes 72-76
+PUSH 10     ; Bytes 77-81
+CMP         ; Byte 82
+JNZ 30      ; Bytes 83-87 (Jump back to Byte 30)
 
-; End - load result
-LOAD 1      ; Load fib(10)
-HALT        ; Result: 55
+; End
+LOAD 1      ; Bytes 88-92
+HALT        ; Byte 93
