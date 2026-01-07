@@ -198,6 +198,7 @@ void VM::run(){
             }
             case JNZ: // JNZ addr
             {
+                if (!check_stack(1)) break;
                 // pop val
                 this->st_ptr--;
                 int val = this->stack[this->st_ptr];
@@ -217,6 +218,11 @@ void VM::run(){
             }
             case DUP:
             {
+                if (st_ptr >= STACK_SIZE) {
+                    printf("Stack Overflow\n");
+                    running = false;
+                    break;
+                }
                 int top = this->stack[this->st_ptr - 1];
                 this->stack[this->st_ptr] = top;
                 this->st_ptr++;
