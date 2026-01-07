@@ -1,5 +1,5 @@
 #include "bvm.h"
-
+#include "../commons.h"
 
 
 VM::VM(unsigned char* bytecode){
