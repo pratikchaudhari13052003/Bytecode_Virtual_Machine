@@ -156,6 +156,11 @@ void VM::run(){
             }
             case LOAD: // LOAD IDX
             {
+                if (st_ptr >= STACK_SIZE) {
+                    printf("Stack Overflow\n");
+                    running = false;
+                    break;
+                }
                 // get idx
                 int idx = *(int *)(this->inst_ptr + 1);
                 

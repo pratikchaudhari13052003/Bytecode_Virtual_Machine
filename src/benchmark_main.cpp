@@ -6,11 +6,12 @@
 #include "vm/bvm.h"
 #include "assembler/assembler.h"
 
-// helper to load and assemble a file in memory
+// Helper to load and assemble a file in memory
 int assemble_file(const char* filename, uint8_t* code_buffer) {
     FILE *in = fopen(filename, "r");
     if (!in) {
-        perror("Failed to open test file");
+        // perror("Failed to open test file"); 
+        // Commented out perror to avoid clutter if file is just missing
         return -1;
     }
 
@@ -32,26 +33,34 @@ void run_benchmark(const std::string& name, const char* filepath) {
     int program_size = assemble_file(filepath, code_buffer);
     
     if (program_size < 0) {
-        std::cerr << "Skipping " << name << std::endl;
+        std::cout << std::left << std::setw(25) << name << " [File Not Found]" << std::endl;
         return;
     }
 
-    // 2. Setup VM
-    VM vm(code_buffer);
-
-    // 3. Run and Measure Time
+    // 2. Run Loop (100,000 times for accuracy)
+    int iterations = 100000;
+    long long total_instructions = 0;
+    
     auto start = std::chrono::high_resolution_clock::now();
-    vm.run();
+    
+    for(int i=0; i<iterations; i++) {
+        VM vm(code_buffer);
+        vm.run();
+        // Capture instruction count from the first run only (it's same every time)
+        if (i == 0) total_instructions = vm.getInstructionCnt();
+    }
+
     auto end = std::chrono::high_resolution_clock::now();
 
-    // 4. calculate duration
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    // 3. Calculate Duration
+    auto total_duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    double avg_time = total_duration.count() / (double)iterations;
 
-    // 5. print Row
+    // 4. Print Row
     std::cout << std::left << std::setw(25) << name 
-              << std::left << std::setw(15) << program_size
-              << std::left << std::setw(20) << vm.getInstructionCnt()
-              << std::left << std::setw(15) << duration.count() 
+              << std::left << std::setw(15) << program_size 
+              << std::left << std::setw(20) << total_instructions 
+              << std::left << std::setw(15) << avg_time 
               << std::endl;
 }
 
@@ -75,7 +84,7 @@ int main() {
         {"Complex Calc", "tests/test10_complex.asm"}
     };
 
-    // print peader
+    // print header
     std::cout << "=========================================================================\n";
     std::cout << std::left << std::setw(25) << "Test Case" 
               << std::left << std::setw(15) << "Size (Bytes)" 
