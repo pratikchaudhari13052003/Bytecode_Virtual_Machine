@@ -22,7 +22,7 @@ class VM {
         //program
         unsigned char* program; // ptr to first byte code
         unsigned char* inst_ptr; // instrucion ptr (PC): points to curr instructn
-
+        long long instruction_cnt;
         bool running;
 
         //stack
@@ -37,9 +37,9 @@ class VM {
         int rst_ptr;
 
         VM(unsigned char* bytecode);
-
         void run();
         bool check_stack(int count);
+        long long getInstructionCnt();
         
 };
 

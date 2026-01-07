@@ -2,11 +2,14 @@
 #include "../commons.h"
 
 
+long long VM::getInstructionCnt(){return instruction_cnt;}
+
 VM::VM(unsigned char* bytecode){
             this->program = bytecode;
             this->inst_ptr = bytecode;
             this->st_ptr = 0;
             this->rst_ptr = 0;
+            this->instruction_cnt=0;
             // init memory to zero
             memset(this->memory, 0, sizeof(this->memory));
 }
@@ -24,6 +27,7 @@ bool VM::check_stack(int count) {
 void VM::run(){
     this->running = true;
     while(running){
+        this->instruction_cnt++;// increment per inst cycle
         // 1. FETCH : get curr instruction
         unsigned char opcode = *this->inst_ptr;
      
