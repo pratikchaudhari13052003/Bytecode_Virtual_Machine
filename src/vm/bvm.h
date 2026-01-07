@@ -39,6 +39,7 @@ class VM {
         VM(unsigned char* bytecode);
 
         void run();
+        bool check_stack(int count);
         
 };
 
