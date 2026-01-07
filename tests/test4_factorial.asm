@@ -1,29 +1,26 @@
 ; Test 4: Factorial using function call
 ; Calculate 5! = 120
-; Uses: CALL, RET for recursion simulation
 
 ; Main program
-PUSH 5
-CALL 15     ; Call factorial function at byte 15
-HALT        ; Result: 120
+PUSH 5      ; PC 0
+CALL 11     ; PC 5: Call function at Byte 11
+HALT        ; PC 10
 
-; Factorial function starts at byte 15
-; Input: number on stack
-; Output: factorial on stack
-DUP         ; Duplicate n
-PUSH 1
-CMP         ; Check if n < 1 (base case actually n <= 1)
-JNZ 30      ; If n > 1, continue
+; Function START (Byte 11)
+DUP         ; PC 11
+PUSH 1      ; PC 12
+CMP         ; PC 17
+JNZ 30      ; PC 18: If n > 1, jump to RECURSE (Byte 30)
 
-; Base case: n <= 1, return 1
-POP         ; Remove n
-PUSH 1      ; Return 1
-RET
+; Base case
+POP         ; PC 23
+PUSH 1      ; PC 24
+RET         ; PC 29
 
-; Recursive case at byte 30
-DUP         ; Duplicate n
-PUSH 1
-SUB         ; n - 1
-CALL 15     ; factorial(n-1)
-MUL         ; n * factorial(n-1)
-RET
+; RECURSE (Byte 30)
+DUP         ; PC 30
+PUSH 1      ; PC 31
+SUB         ; PC 36
+CALL 11     ; PC 37: Call function (Byte 11)
+MUL         ; PC 42
+RET         ; PC 43

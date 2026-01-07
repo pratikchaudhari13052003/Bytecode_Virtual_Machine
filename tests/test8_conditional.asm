@@ -1,26 +1,25 @@
 ; Test 8: Conditional branching
 ; Find maximum of two numbers: max(15, 23)
-; Expected result: 23
 
 PUSH 15
-STORE 0     ; a = 15
+STORE 0     ; PC 5: a = 15
 
 PUSH 23
-STORE 1     ; b = 23
+STORE 1     ; PC 15: b = 23
 
 ; Compare a < b
-LOAD 0
-LOAD 1
-CMP         ; Returns 1 if 15 < 23 (true)
+LOAD 0      ; PC 20
+LOAD 1      ; PC 25
+CMP         ; PC 30
 
-JZ 31       ; If a >= b, jump to else branch
+JZ 46       ; PC 31: If false (a >= b), jump to ELSE (Byte 46)
 
-; If branch: b is larger
-LOAD 1      ; Load b
-JMP 36      ; Jump to end
+; THEN branch
+LOAD 1      ; PC 36: Load b
+JMP 51      ; PC 41: Jump to END (Byte 51)
 
-; Else branch at byte 31
-LOAD 0      ; Load a
+; ELSE branch (Target 46)
+LOAD 0      ; PC 46: Load a
 
-; End at byte 36
-HALT        ; Result: 23
+; END (Target 51)
+HALT        ; PC 51
