@@ -44,10 +44,10 @@ void run_benchmark(const std::string& name, const char* filepath) {
     vm.run();
     auto end = std::chrono::high_resolution_clock::now();
 
-    // 4. Calculate Duration
+    // 4. calculate duration
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-    // 5. Print Row
+    // 5. print Row
     std::cout << std::left << std::setw(25) << name 
               << std::left << std::setw(15) << program_size
               << std::left << std::setw(20) << vm.getInstructionCnt()
