@@ -1,5 +1,5 @@
 #include "bvm.h"
-
+#include "../commons.h"
 
 
 VM::VM(unsigned char* bytecode){
@@ -9,6 +9,16 @@ VM::VM(unsigned char* bytecode){
             this->rst_ptr = 0;
             // init memory to zero
             memset(this->memory, 0, sizeof(this->memory));
+}
+
+// helper to check st size
+bool VM::check_stack(int count) {
+    if (this->st_ptr < count) {
+        printf("Error: Stack Underflow\n");
+        this->running = false;
+        return false;
+    }
+    return true;
 }
  
 void VM::run(){
@@ -28,6 +38,11 @@ void VM::run(){
             {    // get addr of the byte after opcode
                 // (int *):  cast it: treat addr as ptr to int
                 // * : dereference: read int val
+                if(st_ptr >= STACK_SIZE){
+                    printf("Stack Overflow\n");
+                    running = false;
+                    break;
+                }
                 int val = *(int *)(this->inst_ptr + 1);
                 // stack logic
                 // add val to stack
@@ -40,13 +55,16 @@ void VM::run(){
                 break;
             }
             case POP: { // POP
-                if (this->st_ptr > 0) {
+                if(check_stack(1)){
                     this->st_ptr--;
                 }
                 break;
             }
             case ADD: // ADD
             {
+                if(!check_stack(2)){
+                    break;
+                }
                 this->st_ptr--;
                 int b = this->stack[this->st_ptr];
                 this->st_ptr--;
@@ -58,6 +76,9 @@ void VM::run(){
             }
             case SUB: // SUBTRACT
             {
+                if(!check_stack(2)){
+                    break;
+                }
                 this->st_ptr--;
                 int b = this->stack[this->st_ptr];
                 this->st_ptr--;
@@ -69,6 +90,9 @@ void VM::run(){
             }
             case MUL: // MUL
             {
+                if(!check_stack(2)){
+                    break;
+                }
                 this->st_ptr--;
                 int b = this->stack[this->st_ptr];
                 this->st_ptr--;
@@ -80,8 +104,16 @@ void VM::run(){
             }
             case DIV: // DIV
             {
+                if(!check_stack(2)){
+                    break;
+                }
                 this->st_ptr--;
                 int b = this->stack[this->st_ptr];
+                if (b==0){
+                    printf("Error: Div by Zero\n");
+                    running = false;
+                    break;
+                }
                 this->st_ptr--;
                 int a = this->stack[this->st_ptr];
                 int res = (int)a/b;
@@ -90,6 +122,9 @@ void VM::run(){
                 break;
             }
             case CMP: { // CMP (eqal check)
+                if(!check_stack(2)){
+                    break;
+                }
                 this->st_ptr--;
                 int b = this->stack[this->st_ptr];
                 this->st_ptr--;
@@ -143,6 +178,7 @@ void VM::run(){
             }
             case JZ: // JZ addr
             {
+                if(!check_stack(1)) break;
                 // pop val
                 this->st_ptr--;
                 int val = this->stack[this->st_ptr];
@@ -162,6 +198,7 @@ void VM::run(){
             }
             case JNZ: // JNZ addr
             {
+                if (!check_stack(1)) break;
                 // pop val
                 this->st_ptr--;
                 int val = this->stack[this->st_ptr];
@@ -181,6 +218,11 @@ void VM::run(){
             }
             case DUP:
             {
+                if (st_ptr >= STACK_SIZE) {
+                    printf("Stack Overflow\n");
+                    running = false;
+                    break;
+                }
                 int top = this->stack[this->st_ptr - 1];
                 this->stack[this->st_ptr] = top;
                 this->st_ptr++;

@@ -11,12 +11,12 @@ all: vm assembler
 
 # 1. Compile VM
 # We tell make to look for files inside $(SRC)/...
-vm: $(SRC)/bvm_main.cpp $(SRC)/bvm.cpp
-	$(CXX) $(CXXFLAGS) -o vm $(SRC)/bvm_main.cpp $(SRC)/bvm.cpp
+vm: $(SRC)/vm/bvm_main.cpp $(SRC)/vm/bvm.cpp
+	$(CXX) $(CXXFLAGS) -o vm $(SRC)/vm/bvm_main.cpp $(SRC)/vm/bvm.cpp
 
 # 2. Compile Assembler
-assembler: $(SRC)/assembly_line.cpp $(SRC)/bvm_assemble_line.cpp
-	$(CXX) $(CXXFLAGS) -o assembler $(SRC)/assembly_line.cpp $(SRC)/bvm_assemble_line.cpp
+assembler: $(SRC)/assembler/assembly_main.cpp $(SRC)/assembler/assembler.cpp
+	$(CXX) $(CXXFLAGS) -o assembler $(SRC)/assembler/assembly_main.cpp $(SRC)/assembler/assembler.cpp
 
 run: all
 	
@@ -25,4 +25,4 @@ run: all
 	./$(BIN_DIR)/vm area.bin
 
 clean:
-	rm -f vm assembler
+	rm -f vm assembler *.bin

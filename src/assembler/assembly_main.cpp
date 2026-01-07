@@ -1,12 +1,4 @@
-#include <cstdint>
-#include <iostream>
-
-
-#define CODE_SIZE  1024 
-#define LINE_SIZE 128
-
-int assemble_line(char *line, uint8_t *code, int pc);
-
+#include "assembler.h"
 
 int main(int argc, char *argv[]) {
     

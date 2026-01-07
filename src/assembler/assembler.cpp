@@ -1,7 +1,6 @@
-#include <cstdint>
-#include <cstdio>
-#include <cstring>
 
+#include "assembler.h"
+#include "../commons.h"
 
 int emit(uint8_t *code, int pc, uint8_t byte) {
     code[pc++] = byte;
@@ -12,30 +11,6 @@ int emit_int(uint8_t *code, int pc, int value) {
     *(int*)&code[pc] = value; // Smashes 4 bytes into the array
     return pc + 4;
 }
-
-typedef enum {
-    PUSH  = 0x01,
-    POP   = 0x02,
-    DUP   = 0x03,
-
-    ADD   = 0x10,
-    SUB   = 0x11,
-    MUL   = 0x12,
-    DIV   = 0x13,
-    CMP   = 0x14,
-
-    JMP   = 0x20,
-    JZ    = 0x21,
-    JNZ   = 0x22,
-
-    STORE = 0x30,
-    LOAD  = 0x31,
-
-    CALL  = 0x40,
-    RET   = 0x41,
-
-    HALT  = 0xFF
-} OpCode;
 
 
 
