@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <iostream>
-
+#include <cstring>
 
 #define CODE_SIZE  1024 
 #define LINE_SIZE 128
