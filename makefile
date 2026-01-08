@@ -13,22 +13,35 @@ vm: $(SRC)/vm/bvm_main.cpp $(SRC)/vm/bvm.cpp
 	$(CXX) $(CXXFLAGS) -o vm $(SRC)/vm/bvm_main.cpp $(SRC)/vm/bvm.cpp
 
 # 2. Compile Assembler
-# We tell make to look for files inside $(SRC)/...
 assembler: $(SRC)/assembler/assembly_main.cpp $(SRC)/assembler/assembler.cpp
 	$(CXX) $(CXXFLAGS) -o assembler $(SRC)/assembler/assembly_main.cpp $(SRC)/assembler/assembler.cpp
 
 # 3. Compile Benchmark Tool
-# links benchmark_main with bvm.cpp (for VM) and assembler.cpp (for assembling on fly)
 benchmark: $(SRC)/benchmark_main.cpp $(SRC)/vm/bvm.cpp $(SRC)/assembler/assembler.cpp
 	$(CXX) $(CXXFLAGS) -o benchmark $(SRC)/benchmark_main.cpp $(SRC)/vm/bvm.cpp $(SRC)/assembler/assembler.cpp
 
+# 4. Run Everything (Dynamic Test Suite)
 run: all
-	./assembler tests/area.asm area.bin
-	./vm area.bin
-
-# New target to run benchmarks
-test: benchmark
+	@echo "========================================"
+	@echo "       RUNNING ALL TEST CASES           "
+	@echo "========================================"
+	@# This loop finds every .asm file in tests/ and runs it
+	@for asm_file in tests/*.asm; do \
+		echo "----------------------------------------"; \
+		echo "Testing: $$asm_file"; \
+		bin_file=$${asm_file%.asm}.bin; \
+		./assembler $$asm_file $$bin_file; \
+		if [ $$? -eq 0 ]; then \
+			./vm $$bin_file; \
+		else \
+			echo "Assembler Failed for $$asm_file"; \
+		fi \
+	done
+	@echo "========================================"
+	@echo "       RUNNING BENCHMARK                "
+	@echo "========================================"
 	./benchmark
 
+# Clean up binaries
 clean:
-	rm -f vm assembler benchmark *.bin
+	rm -f vm assembler benchmark *.bin tests/*.bin

@@ -1,20 +1,11 @@
 ; Test 6: Nested function calls
-; Tests proper return stack handling
-; Calculate: square(add(3, 4)) = 49
-
-PUSH 3
-PUSH 4
-CALL 15     ; Call add function
-CALL 25     ; Call square function
-HALT        ; Result: 49
-
-; Add function at byte 15
-; Pops two values, pushes sum
-ADD
-RET
-
-; Square function at byte 25
-; Pops one value, pushes square
-DUP
-MUL
-RET
+PUSH 3          ; PC 0-4
+PUSH 4          ; PC 5-9
+CALL 21         ; PC 10-14 (Call add at byte 21)
+CALL 23         ; PC 15-19 (Call square at byte 23)
+HALT            ; PC 20
+ADD             ; PC 21
+RET             ; PC 22
+DUP             ; PC 23
+MUL             ; PC 24
+RET             ; PC 25
