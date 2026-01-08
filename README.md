@@ -1,17 +1,335 @@
-# BVM - Bytecode Virtual Machine
+# Bytecode Virtual Machine (BVM)
 
-**BVM** is a lightweight, stack-based Virtual Machine written in C++. It features a custom instruction set architecture (ISA), a simulated memory space, and a dedicated **Assembler** that compiles human-readable assembly code into binary bytecode.
+A lightweight, stack-based virtual machine with a custom assembler and comprehensive benchmark suite. This project implements a complete virtual machine capable of executing bytecode programs with support for arithmetic operations, control flow, function calls, and memory management.
 
 ## 🚀 Features
 
-* **Stack-Based Architecture:** All calculations (Add, Sub, Mul, etc.) are performed using a central operand stack.
-* **Custom Assembler:** A built-in tool that translates `.asm` text files into compact `.bin` binary files.
-* **Flow Control:** Supports conditional branching (`JZ`, `JNZ`), unconditional jumps (`JMP`), and function calls (`CALL`, `RET`).
-* **Memory Access:** Simulates 256 slots of integer memory accessible via `LOAD` and `STORE`.
+- **Stack-Based Architecture**: Efficient stack-based execution model
+- **Custom Assembly Language**: Human-readable assembly syntax with label support
+- **Two-Pass Assembler**: Converts assembly code to bytecode with automatic address resolution
+- **Rich Instruction Set**: 17 opcodes covering arithmetic, logic, control flow, and memory operations
+- **Function Call Support**: Full support for nested function calls with separate return stack
+- **Memory Management**: 256 integer memory slots for variable storage
+- **Benchmark Suite**: Performance testing framework with 10 test programs
+- **Comprehensive Error Handling**: Stack overflow/underflow detection and division by zero protection
 
-## 🛠️ Build Instructions
+## 📋 Instruction Set
 
-Since the project is consolidated into two main files, compilation is straightforward using `g++` or `clang`.
+### Stack Operations
+- `PUSH <value>` - Push integer value onto stack
+- `POP` - Remove top value from stack
+- `DUP` - Duplicate top stack value
 
-### 1. Compile the Assembler
+### Arithmetic Operations
+- `ADD` - Add top two values (a + b)
+- `SUB` - Subtract (a - b)
+- `MUL` - Multiply (a × b)
+- `DIV` - Integer division (a ÷ b)
+- `CMP` - Compare (pushes 1 if a < b, else 0)
+
+### Control Flow
+- `JMP <addr>` - Unconditional jump to address
+- `JZ <addr>` - Jump if top value is zero
+- `JNZ <addr>` - Jump if top value is non-zero
+
+### Memory Operations
+- `LOAD <index>` - Load value from memory[index] to stack
+- `STORE <index>` - Store top value to memory[index]
+
+### Function Calls
+- `CALL <addr>` - Call function at address (supports labels)
+- `RET` - Return from function
+
+### Program Control
+- `HALT` - Stop execution
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────┐
+│         Bytecode Virtual Machine        │
+├─────────────────────────────────────────┤
+│  Instruction Pointer (Program Counter)  │
+│  Main Stack (1024 integers)             │
+│  Return Stack (256 addresses)           │
+│  Memory Array (256 integers)            │
+└─────────────────────────────────────────┘
+           ↑
+           │ bytecode
+           │
+┌─────────────────────────────────────────┐
+│           Two-Pass Assembler            │
+├─────────────────────────────────────────┤
+│  Pass 1: Build Symbol Table (Labels)    │
+│  Pass 2: Generate Bytecode              │
+└─────────────────────────────────────────┘
+           ↑
+           │ .asm files
+           │
+┌─────────────────────────────────────────┐
+│        Assembly Source Code             │
+└─────────────────────────────────────────┘
+```
+
+## 🛠️ Building the Project
+
+### Prerequisites
+- C++ compiler with C++11 support (g++ recommended)
+- Make utility
+
+### Compilation
+
 ```bash
+# Compile all components (VM, Assembler, Benchmark)
+make all
+
+# Compile individual components
+make vm          # Compile only the VM
+make assembler   # Compile only the Assembler
+make benchmark   # Compile only the Benchmark tool
+
+# Clean build artifacts
+make clean
+```
+
+## 💻 Usage
+
+### Running Assembly Programs
+
+```bash
+# Assemble an .asm file to bytecode
+./assembler input.asm output.bin
+
+# Execute the bytecode
+./vm output.bin
+```
+
+### Example: Factorial Program
+
+**factorial.asm**
+```asm
+; Calculate 5! = 120
+PUSH 5
+CALL factorial
+HALT
+
+factorial:
+    DUP
+    PUSH 2
+    CMP
+    JZ base_case
+    ; Recursive case
+    DUP
+    PUSH 1
+    SUB
+    CALL factorial
+    MUL
+    RET
+    
+base_case:
+    POP
+    PUSH 1
+    RET
+```
+
+**Run it:**
+```bash
+./assembler factorial.asm factorial.bin
+./vm factorial.bin
+# Output: Final stack top: 120
+```
+
+### Running All Tests and Benchmarks
+
+```bash
+make run
+```
+
+This will:
+1. Compile all components
+2. Run all test cases in `tests/` folder
+3. Execute the benchmark suite
+
+## 📊 Test Suite
+
+The project includes 10 comprehensive test programs:
+
+| Test | Description | Expected Output |
+|------|-------------|----------------|
+| `test1_arithmetic.asm` | Basic arithmetic operations | 42 |
+| `test2_circle_area.asm` | Circle area calculation (πr²) | 314 |
+| `test3_loop_sum.asm` | Sum of 1 to 10 | 55 |
+| `test4_factorial.asm` | Factorial (5!) with recursion | 120 |
+| `test5_fibonacci.asm` | Fibonacci number calculation | Varies |
+| `test6_nested_calls.asm` | Nested function calls | 49 |
+| `test7_memory_ops.asm` | Memory load/store operations | Varies |
+| `test8_conditional.asm` | Conditional branching | Varies |
+| `test9_stack_ops.asm` | Stack manipulation (DUP, POP) | Varies |
+| `test10_complex.asm` | Complex multi-operation program | Varies |
+
+## 🎯 Benchmark Results
+
+Run the benchmark suite to measure performance:
+
+```bash
+./benchmark
+```
+
+**Sample Output:**
+```
+=========================================================================
+Test Case                Size (Bytes)   Instructions Exec   Time (us)      
+=========================================================================
+Arithmetic               21             6                   0.45
+Circle Area              31             8                   0.52
+Loop Sum                 41             67                  1.23
+Factorial (Func)         44             148                 2.15
+Fibonacci                XX             XXX                 X.XX
+...
+=========================================================================
+```
+
+The benchmark runs each test 100,000 times and reports:
+- **Program Size**: Bytecode size in bytes
+- **Instructions Executed**: Total VM instructions per run
+- **Average Time**: Execution time in microseconds
+
+## 📁 Project Structure
+
+```
+Bytecode_Virtual_Machine/
+├── src/
+│   ├── vm/
+│   │   ├── bvm.h              # VM class definition
+│   │   ├── bvm.cpp            # VM implementation
+│   │   └── bvm_main.cpp       # VM entry point
+│   ├── assembler/
+│   │   ├── assembler.h        # Assembler function declarations
+│   │   ├── assembler.cpp      # Two-pass assembler implementation
+│   │   └── assembly_main.cpp  # Assembler entry point
+│   ├── benchmark_main.cpp     # Benchmark suite
+│   └── commons.h              # Shared opcode definitions
+├── tests/
+│   ├── test1_arithmetic.asm
+│   ├── test2_circle_area.asm
+│   ├── test3_loop_sum.asm
+│   ├── test4_factorial.asm
+│   ├── test5_fibonacci.asm
+│   ├── test6_nested_calls.asm
+│   ├── test7_memory_ops.asm
+│   ├── test8_conditional.asm
+│   ├── test9_stack_ops.asm
+│   └── test10_complex.asm
+├── Makefile
+└── README.md
+```
+
+## 🔧 Technical Details
+
+### Memory Layout
+- **Code Buffer**: 1024 bytes for bytecode
+- **Main Stack**: 1024 integer slots
+- **Return Stack**: 256 address slots
+- **Memory Array**: 256 integer slots
+- **Line Buffer**: 128 characters for assembly parsing
+
+### Bytecode Format
+- **Instructions without arguments**: 1 byte (opcode only)
+- **Instructions with arguments**: 5 bytes (1 byte opcode + 4 byte integer)
+
+### Error Handling
+- Stack overflow detection (main and return stacks)
+- Stack underflow detection
+- Division by zero protection
+- Undefined label detection during assembly
+- File I/O error handling
+
+## 🎓 Learning Objectives
+
+This project demonstrates:
+- Virtual machine design and implementation
+- Stack-based computation models
+- Two-pass assembly with symbol resolution
+- Bytecode generation and execution
+- Function call conventions and return stack management
+- Performance benchmarking and profiling
+- Low-level systems programming in C++
+
+## 🚧 Future Enhancements
+
+Potential improvements:
+- [ ] Add floating-point arithmetic support
+- [ ] Implement more comparison operators (<=, >=, !=, ==)
+- [ ] Add bitwise operations (AND, OR, XOR, NOT, SHIFT)
+- [ ] Support for string operations
+- [ ] Interactive debugger with breakpoints
+- [ ] Disassembler (bytecode → assembly)
+- [ ] Optimization passes in assembler
+- [ ] JIT compilation for hot code paths
+- [ ] Extended memory addressing modes
+- [ ] System call interface for I/O operations
+
+## 📝 Assembly Language Syntax
+
+```asm
+; Comments start with semicolon
+
+; Labels define jump targets
+label_name:
+    INSTRUCTION arg
+
+; Labels can be on same line as instruction
+another_label: INSTRUCTION
+
+; Numeric arguments
+PUSH 42          ; Decimal integers
+JMP 100          ; Absolute addresses
+
+; Label arguments (resolved by assembler)
+CALL function_name
+JZ loop_start
+```
+
+## 🐛 Debugging Tips
+
+**Enable debug output** in `assembler.cpp`:
+```cpp
+// Shows label resolution during assembly
+printf("DEBUG Pass1: Label '%s' at PC %d\n", label, pc);
+printf("DEBUG Pass2: '%s %s' -> address %d\n", instr, arg_str, val);
+```
+
+**Inspect bytecode**:
+```bash
+hexdump -C program.bin
+```
+
+**Check assembled size**:
+```bash
+ls -l program.bin
+```
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 👨‍💻 Contributing
+
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest new features
+- Submit pull requests
+- Improve documentation
+- Add more test cases
+
+## 🙏 Acknowledgments
+
+Built as an educational project to explore:
+- Virtual machine architecture
+- Compiler/assembler design
+- Low-level programming concepts
+- Performance optimization techniques
+
+---
+
+**Made with ❤️ for learning systems programming**
