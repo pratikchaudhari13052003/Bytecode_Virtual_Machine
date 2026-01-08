@@ -180,11 +180,16 @@ Run the benchmark suite to measure performance:
 =========================================================================
 Test Case                Size (Bytes)   Instructions Exec   Time (us)      
 =========================================================================
-Arithmetic               21             6                   0.45
-Circle Area              31             8                   0.52
-Loop Sum                 41             67                  1.23
-Factorial (Func)         44             148                 2.15
-Fibonacci                XX             XXX                 X.XX
+Arithmetic               24             8                   0.08509        
+Circle Area              14             6                   0.08916        
+Loop Sum                 79             135                 1.12305        
+Factorial (Func)         73             63                  0.50169        
+Fibonacci                94             120                 0.91607        
+Nested Calls             26             10                  0.08051        
+Memory Ops               64             16                  0.14606        
+Conditional              52             11                  0.08892        
+Stack Ops                32             12                  0.10955        
+Complex Calc             82             86                  0.69301 
 ...
 =========================================================================
 ```
