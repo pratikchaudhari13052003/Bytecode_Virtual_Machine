@@ -282,25 +282,6 @@ CALL function_name
 JZ loop_start
 ```
 
-## 🐛 Debugging Tips
-
-**Enable debug output** in `assembler.cpp`:
-```cpp
-// Shows label resolution during assembly
-printf("DEBUG Pass1: Label '%s' at PC %d\n", label, pc);
-printf("DEBUG Pass2: '%s %s' -> address %d\n", instr, arg_str, val);
-```
-
-**Inspect bytecode**:
-```bash
-hexdump -C program.bin
-```
-
-**Check assembled size**:
-```bash
-ls -l program.bin
-```
-
 ## 👨‍💻 Contributing
 
 Contributions are welcome! Feel free to:
